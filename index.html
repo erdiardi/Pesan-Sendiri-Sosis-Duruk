@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kedai Sosis Duruk — Self Order</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5EFE0;
+    --brown-dark: #2C1A0E;
+    --brown-mid: #5C3D1E;
+    --brown-light: #A0693A;
+    --amber: #D4872B;
+    --amber-light: #F0A84A;
+    --green: #3A6B4A;
+    --red: #C0392B;
+    --white: #FEFAF4;
+    --shadow: rgba(44,26,14,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--brown-dark); min-height: 100vh; }
+
+  /* HEADER */
+  header { background: var(--brown-dark); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(0,0,0,0.3); gap: 10px; }
+  .logo-area { display: flex; align-items: center; gap: 10px; }
+  .logo-img { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; background: rgba(240,168,74,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+  .logo-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+  .logo-img-placeholder { font-size: 1.6rem; }
+  .logo-text { font-family: 'Playfair Display', serif; color: var(--amber-light); font-size: 1.1rem; font-weight: 900; line-height: 1.2; }
+  .logo-text span { color: var(--cream); font-weight: 400; font-size: 0.65rem; display: block; letter-spacing: 2px; font-family: 'DM Sans', sans-serif; }
+  .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .table-indicator { background: rgba(240,168,74,0.2); border: 1px solid var(--amber); color: var(--amber-light); font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 50px; white-space: nowrap; }
+  .cart-btn { background: var(--amber); border: none; border-radius: 50px; padding: 9px 16px; color: white; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s, transform 0.15s; }
+  .cart-btn:hover { background: var(--amber-light); transform: scale(1.03); }
+  .cart-count { background: var(--red); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+  /* TABLE BAR */
+  .table-bar { background: var(--brown-mid); padding: 10px 20px; display: flex; align-items: center; gap: 10px; overflow-x: auto; }
+  .table-bar label { color: var(--cream); font-size: 0.82rem; font-weight: 500; white-space: nowrap; }
+  .table-btn { background: transparent; border: 2px solid rgba(240,168,74,0.4); color: var(--cream); border-radius: 8px; padding: 5px 12px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .table-btn.active, .table-btn:hover { background: var(--amber); border-color: var(--amber); color: white; }
+
+  /* CATEGORY TABS */
+  .category-tabs { background: var(--white); padding: 10px 16px; display: flex; gap: 7px; overflow-x: auto; border-bottom: 2px solid rgba(44,26,14,0.08); }
+  .cat-tab { background: transparent; border: 2px solid rgba(44,26,14,0.15); border-radius: 50px; padding: 6px 14px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; color: var(--brown-mid); cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .cat-tab.active, .cat-tab:hover { background: var(--brown-dark); border-color: var(--brown-dark); color: var(--cream); }
+
+  /* MENU */
+  .menu-section { padding: 20px 16px 100px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--brown-dark); margin-bottom: 12px; padding-bottom: 5px; border-bottom: 2px solid var(--amber); display: inline-block; }
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 12px; margin-bottom: 26px; }
+  .menu-card { background: var(--white); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px var(--shadow); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; position: relative; }
+  .menu-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px var(--shadow); }
+  .menu-card-img { width: 100%; aspect-ratio: 1; background: linear-gradient(135deg, #D4A76A, #8B5E3C); display: flex; align-items: center; justify-content: center; font-size: 2.8rem; position: relative; overflow: hidden; }
+  .menu-card-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.15)); }
+  .menu-card-body { padding: 10px; }
+  .menu-card-name { font-weight: 600; font-size: 0.85rem; color: var(--brown-dark); margin-bottom: 2px; line-height: 1.3; }
+  .menu-card-desc { font-size: 0.7rem; color: var(--brown-light); margin-bottom: 7px; line-height: 1.4; }
+  .menu-card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .menu-price { font-weight: 700; color: var(--amber); font-size: 0.88rem; }
+  .add-btn { background: var(--brown-dark); color: var(--cream); border: none; border-radius: 50%; width: 26px; height: 26px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.15s; line-height: 1; }
+  .add-btn:hover { background: var(--amber); transform: scale(1.1); }
+  .badge-popular { position: absolute; top: 6px; right: 6px; background: var(--amber); color: white; font-size: 0.58rem; font-weight: 700; padding: 2px 5px; border-radius: 50px; z-index: 2; }
+
+  /* MODALS */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(44,26,14,0.5); z-index: 200; backdrop-filter: blur(3px); }
+  .overlay.show { display: flex; align-items: flex-end; justify-content: center; }
+  @media(min-width:600px) { .overlay.show { align-items: center; } }
+  @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal { background: var(--white); border-radius: 24px 24px 0 0; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease; padding: 20px; }
+  @media(min-width:600px) { .modal { border-radius: 24px; margin: 16px; } }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--brown-dark); flex: 1; margin-right: 12px; }
+  .close-btn { background: var(--cream); border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--brown-mid); flex-shrink: 0; }
+  .close-btn:hover { background: #e0d5c0; }
+  .modal-emoji { font-size: 4rem; text-align: center; padding: 12px; background: linear-gradient(135deg, #F0E0C0, #D4B080); border-radius: 14px; margin-bottom: 12px; }
+  .modal-price { font-size: 1.15rem; font-weight: 700; color: var(--amber); margin-bottom: 5px; }
+  .modal-desc { font-size: 0.85rem; color: var(--brown-light); margin-bottom: 16px; line-height: 1.6; }
+  .option-group { margin-bottom: 14px; }
+  .option-label { font-weight: 600; font-size: 0.78rem; color: var(--brown-dark); margin-bottom: 7px; display: flex; align-items: center; gap: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .opt-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .opt-btn { flex: 1; min-width: 64px; padding: 8px 5px; border: 2px solid rgba(44,26,14,0.15); border-radius: 10px; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 500; color: var(--brown-mid); cursor: pointer; text-align: center; transition: all 0.2s; }
+  .opt-btn .emoji { display: block; font-size: 1rem; margin-bottom: 2px; }
+  .opt-btn.spicy-style:hover, .opt-btn.spicy-style.active { border-color: var(--red); background: rgba(192,57,43,0.08); color: var(--red); }
+  .opt-btn.sauce-style:hover, .opt-btn.sauce-style.active { border-color: var(--brown-mid); background: rgba(92,61,30,0.08); color: var(--brown-mid); }
+  .opt-btn.addon-style:hover, .opt-btn.addon-style.active { border-color: var(--amber); background: rgba(212,135,43,0.08); color: var(--amber); }
+  .opt-btn.fire-style:hover, .opt-btn.fire-style.active { border-color: #e74c3c; background: rgba(231,76,60,0.1); color: #c0392b; }
+  .opt-btn.drink-style:hover, .opt-btn.drink-style.active { border-color: var(--green); background: rgba(58,107,74,0.08); color: var(--green); }
+  .opt-btn.temp-style:hover, .opt-btn.temp-style.active { border-color: var(--amber); background: rgba(212,135,43,0.08); color: var(--amber); }
+
+  /* Checkbox add-ons */
+  .addon-check-row { display: flex; flex-direction: column; gap: 6px; }
+  .addon-check { display: flex; align-items: center; justify-content: space-between; background: var(--cream); border: 2px solid rgba(44,26,14,0.12); border-radius: 10px; padding: 9px 12px; cursor: pointer; transition: border-color 0.2s; }
+  .addon-check.checked { border-color: var(--amber); background: rgba(212,135,43,0.07); }
+  .addon-check-label { font-size: 0.84rem; font-weight: 500; color: var(--brown-dark); }
+  .addon-check-price { font-size: 0.8rem; font-weight: 700; color: var(--amber); }
+
+  .note-input { width: 100%; border: 2px solid rgba(44,26,14,0.12); border-radius: 12px; padding: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--brown-dark); background: var(--cream); resize: none; outline: none; transition: border-color 0.2s; min-height: 60px; }
+  .note-input:focus { border-color: var(--amber); }
+  .qty-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .qty-label { font-weight: 600; font-size: 0.88rem; }
+  .qty-ctrl { display: flex; align-items: center; gap: 12px; }
+  .qty-btn { background: var(--cream); border: 2px solid rgba(44,26,14,0.15); border-radius: 50%; width: 32px; height: 32px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--brown-dark); transition: all 0.2s; }
+  .qty-btn:hover { background: var(--brown-dark); color: var(--cream); border-color: var(--brown-dark); }
+  .qty-num { font-size: 1.2rem; font-weight: 700; min-width: 26px; text-align: center; }
+  .add-to-cart-btn { width: 100%; background: var(--brown-dark); color: var(--cream); border: none; border-radius: 13px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.2s; }
+  .add-to-cart-btn:hover { background: var(--amber); }
+
+  /* CART */
+  .cart-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(44,26,14,0.08); }
+  .cart-emoji { font-size: 1.6rem; flex-shrink: 0; }
+  .cart-info { flex: 1; }
+  .cart-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
+  .cart-opts { font-size: 0.73rem; color: var(--brown-light); margin-bottom: 2px; }
+  .cart-note { font-size: 0.73rem; color: var(--green); font-style: italic; }
+  .cart-price { font-weight: 700; color: var(--amber); font-size: 0.9rem; margin-top: 3px; }
+  .cart-remove { background: none; border: none; color: #bbb; cursor: pointer; font-size: 1rem; padding: 4px; border-radius: 6px; transition: color 0.2s; }
+  .cart-remove:hover { color: var(--red); }
+  .cart-total-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 2px solid var(--brown-dark); margin-top: 6px; }
+  .cart-total-label { font-weight: 700; font-size: 0.95rem; }
+  .cart-total-val { font-weight: 900; font-size: 1.2rem; color: var(--amber); }
+  .order-btn { width: 100%; background: var(--green); color: white; border: none; border-radius: 13px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-top: 6px; transition: opacity 0.2s; }
+  .order-btn:hover { opacity: 0.9; }
+  .empty-cart { text-align: center; padding: 28px 16px; color: var(--brown-light); }
+  .empty-cart .icon { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+
+  /* SUCCESS */
+  .success-inner { text-align: center; padding: 8px 0; }
+  .success-icon { font-size: 3rem; margin-bottom: 10px; }
+  .success-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+  .success-sub { color: var(--brown-light); font-size: 0.85rem; line-height: 1.6; margin-bottom: 12px; }
+  .order-number { background: var(--cream); border-radius: 12px; padding: 12px; font-size: 1.6rem; font-weight: 900; color: var(--brown-dark); letter-spacing: 3px; margin-bottom: 12px; }
+  .wa-info-box { background: #E8F5E9; border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.8rem; color: #2E7D32; display: flex; align-items: center; gap: 8px; text-align: left; }
+  .new-order-btn { background: var(--brown-dark); color: var(--cream); border: none; border-radius: 13px; padding: 12px 24px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  .new-order-btn:hover { background: var(--amber); }
+
+  .menu-card-img img.menu-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(44,26,14,0.2); border-radius: 4px; }
+
+  /* QRIS */
+  .qris-overlay { display: none; position: fixed; inset: 0; background: rgba(44,26,14,0.6); z-index: 300; backdrop-filter: blur(4px); align-items: center; justify-content: center; }
+  .qris-overlay.show { display: flex; }
+  .qris-box { background: var(--white); border-radius: 24px; padding: 22px 20px 20px; width: 92%; max-width: 360px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.35); animation: slideUp 0.3s ease; position: relative; }
+  .qris-close { position: absolute; top: 12px; right: 12px; background: var(--cream); border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--brown-mid); }
+  .qris-header { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; color: var(--brown-dark); margin-bottom: 4px; }
+  .qris-sub { font-size: 0.76rem; color: var(--brown-light); margin-bottom: 14px; }
+  .qris-total-badge { background: var(--brown-dark); color: var(--amber-light); border-radius: 10px; padding: 9px 14px; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px; margin-bottom: 14px; display: inline-block; width: 100%; }
+  .qris-frame { background: white; border: 3px solid var(--brown-dark); border-radius: 16px; padding: 8px; margin: 0 auto 12px; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .qris-frame img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
+  .qris-note { font-size: 0.73rem; color: var(--brown-light); line-height: 1.5; margin-bottom: 12px; background: var(--cream); border-radius: 10px; padding: 9px 11px; }
+  .qris-confirm-btn { width: 100%; background: var(--green); color: white; border: none; border-radius: 12px; padding: 13px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-area">
+    <!-- LOGO: Ganti URL di bawah ini dengan link foto logo Anda -->
+    <div class="logo-img" id="logoContainer">
+      <img id="logoImg" src="PASTE_URL_LOGO_DISINI" alt="Logo"
+        onerror="this.parentElement.innerHTML='<span class=\'logo-img-placeholder\'>🌭</span>'" />
+    </div>
+    <div class="logo-text">
+      Kedai Sosis Duruk
+      <span>SELF ORDER</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="table-indicator" id="tableIndicator" style="display:none"></span>
+    <button class="cart-btn" onclick="openCart()">
+      🛒 Keranjang
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- TABLE BAR -->
+<div class="table-bar">
+  <label>🪑 Pilih Meja:</label>
+  <button class="table-btn" onclick="selectTable(this,'Meja 1')">1</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 2')">2</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 3')">3</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 4')">4</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 5')">5</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 6')">6</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 7')">7</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 8')">8</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 9')">9</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 10')">10</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 11')">11</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 12')">12</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 13')">13</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 14')">14</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 15')">15</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 16')">16</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 17')">17</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 18')">18</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 19')">19</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 20')">20</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 21')">21</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 22')">22</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 23')">23</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 24')">24</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 25')">25</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 26')">26</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 27')">27</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 28')">28</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 29')">29</button>
+  <button class="table-btn" onclick="selectTable(this,'Meja 30')">30</button>
+  <button class="table-btn" onclick="selectTable(this,'Take Away')">🥡 Take Away</button>
+</div>
+
+<!-- CATEGORY TABS -->
+<div class="category-tabs">
+  <button class="cat-tab active" onclick="filterCat(this,'all')">🍽️ Semua</button>
+  <button class="cat-tab" onclick="filterCat(this,'chicken')">🍗 Chicken</button>
+  <button class="cat-tab" onclick="filterCat(this,'makanan')">🍜 Makanan</button>
+  <button class="cat-tab" onclick="filterCat(this,'fastfood')">🍔 Fast Food</button>
+  <button class="cat-tab" onclick="filterCat(this,'corndog')">🌭 Corndog</button>
+  <button class="cat-tab" onclick="filterCat(this,'dessert')">🍰 Dessert</button>
+  <button class="cat-tab" onclick="filterCat(this,'tokpokki')">🍢 Tokpokki</button>
+  <button class="cat-tab" onclick="filterCat(this,'boba')">🧋 Boba</button>
+  <button class="cat-tab" onclick="filterCat(this,'kopi')">☕ Kopi</button>
+  <button class="cat-tab" onclick="filterCat(this,'milkice')">🥛 Milk Ice</button>
+  <button class="cat-tab" onclick="filterCat(this,'minuman')">🍵 Minuman</button>
+  <button class="cat-tab" onclick="filterCat(this,'eskrim')">🍦 Es Krim</button>
+</div>
+
+<!-- MENU -->
+<div class="menu-section">
+  <div id="menuContainer"></div>
+</div>
+
+<!-- ITEM MODAL -->
+<div class="overlay" id="itemModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="close-btn" onclick="closeModal('itemModal')">✕</button>
+    </div>
+    <div class="modal-emoji" id="modalEmoji"></div>
+    <div class="modal-price" id="modalPrice"></div>
+    <div class="modal-desc" id="modalDesc"></div>
+
+    <div class="option-group" id="variantGroup" style="display:none">
+      <div class="option-label">🍽️ Pilihan Varian</div>
+      <div class="opt-row" id="variantRow"></div>
+    </div>
+    <div class="option-group" id="sauceGroup" style="display:none">
+      <div class="option-label">🥫 Pilihan Saus</div>
+      <div class="opt-row" id="sauceRow"></div>
+    </div>
+    <div class="option-group" id="spicyGroup" style="display:none">
+      <div class="option-label">🌶️ Level Pedas (1–10)</div>
+      <div class="opt-row" id="spicyRow"></div>
+    </div>
+    <div class="option-group" id="fireGroup" style="display:none">
+      <div class="option-label">🔥 Level Pedas Fire</div>
+      <div class="opt-row" id="fireRow"></div>
+    </div>
+    <div class="option-group" id="corndogSpicyGroup" style="display:none">
+      <div class="option-label">🌶️ Rasa Corndog</div>
+      <div class="opt-row" id="corndogSpicyRow"></div>
+    </div>
+    <div class="option-group" id="tehGroup" style="display:none">
+      <div class="option-label">🍵 Pilihan Rasa</div>
+      <div class="opt-row" id="tehRow"></div>
+    </div>
+    <div class="option-group" id="tempGroup" style="display:none">
+      <div class="option-label">🌡️ Suhu</div>
+      <div class="opt-row" id="tempRow"></div>
+    </div>
+    <div class="option-group" id="addonGroup" style="display:none">
+      <div class="option-label">➕ Tambahan</div>
+      <div class="addon-check-row" id="addonRow"></div>
+    </div>
+    <div class="option-group">
+      <div class="option-label">📝 Catatan Khusus</div>
+      <textarea class="note-input" id="modalNote" placeholder="Contoh: tanpa bawang, tidak terlalu pedas..."></textarea>
+    </div>
+    <div class="qty-row">
+      <span class="qty-label">Jumlah</span>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="changeQty(-1)">−</button>
+        <span class="qty-num" id="qtyNum">1</span>
+        <button class="qty-btn" onclick="changeQty(1)">+</button>
+      </div>
+    </div>
+    <button class="add-to-cart-btn" onclick="addToCart()">
+      <span>+ Tambah ke Keranjang</span>
+      <span id="btnTotal" style="opacity:0.85"></span>
+    </button>
+  </div>
+</div>
+
+<!-- CART MODAL -->
+<div class="overlay" id="cartModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🛒 Keranjang Pesanan</div>
+      <button class="close-btn" onclick="closeModal('cartModal')">✕</button>
+    </div>
+    <div id="cartTableInfo" style="margin-bottom:10px;font-size:0.82rem;color:var(--brown-light)"></div>
+    <div id="cartItems"></div>
+    <div class="cart-total-row">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total-val" id="cartTotal">Rp 0</span>
+    </div>
+    <button class="order-btn" onclick="placeOrder()">📲 Pesan &amp; Kirim ke WhatsApp Kasir</button>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="overlay" id="successModal">
+  <div class="modal">
+    <div class="success-inner">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">Pesanan Terkirim!</div>
+      <div class="success-sub">Pesanan Anda telah dikirim ke WhatsApp kasir. Silakan tunggu sebentar!</div>
+      <div class="order-number" id="orderNumber">#001</div>
+      <div class="success-sub" id="successTableInfo"></div>
+      <div class="wa-info-box">
+        <span style="font-size:1.2rem">📲</span>
+        <span>WhatsApp kasir sudah terbuka otomatis. Belum terbuka?
+          <button onclick="resendWA()" style="background:none;border:none;color:#1B5E20;font-weight:700;cursor:pointer;text-decoration:underline;font-size:0.8rem;padding:0">Klik di sini</button>.
+        </span>
+      </div>
+      <button class="new-order-btn" onclick="resetOrder()">🍽️ Pesan Lagi</button>
+      <div style="margin-top:10px">
+        <button onclick="openQris()" style="background:none;border:2px solid var(--amber);border-radius:12px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:700;color:var(--amber);cursor:pointer;width:100%;transition:all 0.2s;" onmouseover="this.style.background='rgba(212,135,43,0.1)'" onmouseout="this.style.background='none'">
+          💳 Bayar via QRIS
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QRIS MODAL -->
+<div class="qris-overlay" id="qrisModal">
+  <div class="qris-box">
+    <button class="qris-close" onclick="closeQris()">✕</button>
+    <div class="qris-header">💳 Pembayaran QRIS</div>
+    <div class="qris-sub">Scan QR di bawah untuk membayar</div>
+    <div class="qris-total-badge">Total: <span id="qrisTotalAmount">Rp 0</span></div>
+    <div class="qris-frame">
+      <img id="qrisImg" src="" alt="QRIS" style="width:100%;height:100%;object-fit:contain;border-radius:8px;" />
+    </div>
+    <div class="qris-note">
+      📌 Tunjukkan bukti transfer ke kasir setelah pembayaran.<br>
+      Nomor order: <strong id="qrisOrderNum">#001</strong>
+    </div>
+    <button class="qris-confirm-btn" onclick="confirmPayment()">✅ Saya Sudah Bayar</button>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+var cart = [], selectedTable = null, currentItem = null, currentQty = 1;
+var currentVariant = null, currentSauce = null, currentSpicy = null;
+var currentFireLevel = null, currentCorndogSpicy = null, currentTeh = null, currentTemp = null;
+var currentAddons = {};
+var orderCount = 0, lastWaUrl = null, lastOrderTotal = 0, lastOrderNum = '';
+var kasirWA = '6285894428189';
+var QRIS_PHOTO_URL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png';
+
+var HARGA_NASI = 3000, HARGA_KEJU = 3000;
+
+// Level pedas 1-10
+var SPICY_LEVELS = [1,2,3,4,5,6,7,8,9,10].map(function(n){
+  return { name: 'Level '+n, emoji: n<=3?'🌶️':n<=6?'🌶️🌶️':'🔥🌶️' };
+});
+
+// Fire level 0-3
+var FIRE_LEVELS = [
+  { name: 'Level 0', emoji: '😌' },
+  { name: 'Level 1', emoji: '🌶️' },
+  { name: 'Level 2', emoji: '🌶️🌶️' },
+  { name: 'Level 3', emoji: '🔥🌶️' }
+];
+
+// Corndog rasa
+var CORNDOG_SPICY_OPTIONS = [
+  { name: 'Ayam Madu', emoji: '🍯' },
+  { name: 'Level Pedas 10', emoji: '🌶️' },
+  { name: 'Level Pedas 20', emoji: '🌶️🌶️' },
+  { name: 'Level Pedas 30', emoji: '🔥🌶️' }
+];
+
+// Saus pilihan
+var SAUCE_OPTIONS = [
+  { name: 'Barbeque', emoji: '🍖' },
+  { name: 'Teriyaki', emoji: '🍡' },
+  { name: 'Blackpepper', emoji: '🫙' }
+];
+
+// Suhu
+var TEMP_OPTIONS = [
+  { name: 'Panas', emoji: '🔥' },
+  { name: 'Dingin', emoji: '🧊' }
+];
+
+// ── DATA MENU ──
+// options: { sauce, spicy(1-10), fire(0-3), corndogSpicy, teh, temp, nasi, keju }
+var menuData = [
+
+  // ══ CHICKEN ══
+  { id:101, cat:'chicken', name:'Chicken Geprek', emoji:'🍗', photo:'', price:12000,
+    desc:'Ayam geprek renyah dengan sambal pilihan.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:true,keju:false}, variants:null },
+  { id:102, cat:'chicken', name:'Chicken Geprek + Nasi', emoji:'🍗', photo:'', price:15000,
+    desc:'Ayam geprek lengkap dengan nasi hangat.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:103, cat:'chicken', name:'Fire Chicken', emoji:'🔥', photo:'', price:15000,
+    desc:'Ayam goreng dengan level pedas pilihan. Berani coba level 3?', popular:true,
+    options:{sauce:false,spicy:false,fire:true,corndogSpicy:false,teh:false,temp:false,nasi:true,keju:true}, variants:null },
+  { id:104, cat:'chicken', name:'Chicken Saus For Kids', emoji:'🍗', photo:'', price:12000,
+    desc:'Ayam goreng dengan saus manis cocok untuk anak-anak.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:true,keju:false}, variants:null },
+  { id:105, cat:'chicken', name:'Chicken Saus Blackpepper', emoji:'🍗', photo:'', price:12000,
+    desc:'Ayam goreng dengan saus lada hitam khas.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:true,keju:false}, variants:null },
+  { id:106, cat:'chicken', name:'Chicken Saus Teriyaki', emoji:'🍗', photo:'', price:12000,
+    desc:'Ayam goreng dengan saus teriyaki manis gurih.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:true,keju:false}, variants:null },
+  { id:107, cat:'chicken', name:'Chicken Saus Barbeque', emoji:'🍗', photo:'', price:12000,
+    desc:'Ayam goreng dengan saus barbeque smoky.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:true,keju:false}, variants:null },
+
+  // ══ MAKANAN KEDAI ══
+  { id:201, cat:'makanan', name:'Ricebowl Beef', emoji:'🍚', photo:'', price:18000,
+    desc:'Nasi dengan beef spesial, pilihan saus favorit kamu.', popular:true,
+    options:{sauce:true,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:202, cat:'makanan', name:'Sate Taichan', emoji:'🍢', photo:'', price:15000,
+    desc:'Sate ayam bumbu taichan pedas segar.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:true,keju:false}, variants:null },
+  { id:203, cat:'makanan', name:'Paket Mie Geprek', emoji:'🍜', photo:'', price:22000,
+    desc:'Paket Mie + Chicken Geprek + Es Teh Poci. Lengkap dan kenyang!', popular:true,
+    options:{sauce:false,spicy:true,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:204, cat:'makanan', name:'Shabu Jerit', emoji:'🫕', photo:'', price:10000,
+    desc:'Shabu-shabu spesial ala kedai, gurih dan segar.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:205, cat:'makanan', name:'Ramen Goreng', emoji:'🍜', photo:'', price:10000,
+    desc:'Ramen goreng spesial, pilih level pedasmu.', popular:false,
+    options:{sauce:false,spicy:true,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:206, cat:'makanan', name:'Mie Ujang', emoji:'🍜', photo:'', price:10000,
+    desc:'Mie spesial dengan cita rasa khas, tersedia level pedas.', popular:false,
+    options:{sauce:false,spicy:true,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:207, cat:'makanan', name:'Misuki Kuah Tomyam', emoji:'🍲', photo:'', price:15000,
+    desc:'Mie kuah tomyam asam segar dengan pilihan level pedas.', popular:true,
+    options:{sauce:false,spicy:true,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:208, cat:'makanan', name:'Mie Kuah Keju', emoji:'🧀', photo:'', price:20000,
+    desc:'Mie kuah dengan lelehan keju, pedas sesuai selera.', popular:false,
+    options:{sauce:false,spicy:true,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:209, cat:'makanan', name:'Seblak Original', emoji:'🫕', photo:'', price:10000,
+    desc:'Seblak original kerupuk kuah pedas khas Sunda.', popular:false,
+    options:{sauce:false,spicy:true,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:210, cat:'makanan', name:'Seblak Mie', emoji:'🍜', photo:'', price:12000,
+    desc:'Seblak dengan tambahan mie, makin lengkap makin pedas.', popular:false,
+    options:{sauce:false,spicy:true,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:211, cat:'makanan', name:'Steak Patties', emoji:'🥩', photo:'', price:15000,
+    desc:'Steak patties juicy dengan pilihan saus terbaik.', popular:false,
+    options:{sauce:true,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:212, cat:'makanan', name:'Beef Kebab', emoji:'🌯', photo:'', price:10000,
+    desc:'Kebab daging sapi dengan sayuran segar dan saus spesial.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:213, cat:'makanan', name:'Roti Toast', emoji:'🍞', photo:'', price:18000,
+    desc:'Roti bakar tebal dengan topping pilihan yang lezat.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+
+  // ══ FAST FOOD ══
+  { id:301, cat:'fastfood', name:'Beef Burger', emoji:'🍔', photo:'', price:13000,
+    desc:'Burger daging sapi juicy dengan sayuran segar.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[
+      { name:'Beef Burger', price:13000 },
+      { name:'Beef n Cheese Burger', price:15000 },
+      { name:'Double Beef Burger', price:18000 },
+      { name:'Double Beef n Cheese', price:20000 }
+    ] },
+  { id:302, cat:'fastfood', name:'Beef Kebab', emoji:'🌯', photo:'', price:10000,
+    desc:'Kebab daging sapi dengan isian lengkap.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:303, cat:'fastfood', name:'Mix Platter', emoji:'🍱', photo:'', price:15000,
+    desc:'Platter campuran berbagai menu andalan kedai.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:304, cat:'fastfood', name:'Kentang Goreng', emoji:'🍟', photo:'', price:10000,
+    desc:'Kentang goreng crispy golden brown.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:305, cat:'fastfood', name:'Sosis Goreng', emoji:'🌭', photo:'FOTO_SOSIS_GORENG', price:12000,
+    desc:'Sosis goreng crispy disajikan dengan saus pilihan.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:306, cat:'fastfood', name:'Nugget Goreng', emoji:'🍗', photo:'FOTO_NUGGET_GORENG', price:12000,
+    desc:'Nugget ayam goreng crispy, cocok untuk camilan.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+
+  // ══ CORNDOG ══
+  { id:401, cat:'corndog', name:'Corndog Original', emoji:'🌭', photo:'', price:12000,
+    desc:'Corndog klasik dengan pilihan rasa ayam madu atau level pedas.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:true,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:402, cat:'corndog', name:'Corndog Mozzarella', emoji:'🧀', photo:'FOTO_CORNDOG_MOZZ', price:18000,
+    desc:'Corndog dengan isian mozzarella meleleh, tersedia berbagai rasa.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[
+      { name:'Mozzarella', price:18000, photo:'', corndogSpicy:true },
+      { name:'Cokelat', price:18000, photo:'FOTO_CD_COKELAT', corndogSpicy:false },
+      { name:'Greentea', price:18000, photo:'FOTO_CD_GREENTEA', corndogSpicy:false },
+      { name:'Strawberry', price:18000, photo:'FOTO_CD_STRAWBERRY', corndogSpicy:false },
+      { name:'Cappuccino', price:18000, photo:'FOTO_CD_CAPPUCCINO', corndogSpicy:false },
+      { name:'Taro', price:18000, photo:'FOTO_CD_TARO', corndogSpicy:false },
+      { name:'Tiramisu', price:18000, photo:'FOTO_CD_TIRAMISU', corndogSpicy:false },
+      { name:'Ayam Madu', price:18000, photo:'FOTO_CD_AYAMMADU', corndogSpicy:false }
+    ] },
+  { id:403, cat:'corndog', name:'Corndog Mozz Sosis', emoji:'🌭', photo:'', price:15000,
+    desc:'Corndog mozzarella dengan sosis di dalam, pilihan rasa.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:true,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+
+  // ══ DESSERT ══
+  { id:501, cat:'dessert', name:'Kebab Duren', emoji:'🍈', photo:'', price:10000,
+    desc:'Kebab isi durian lezat yang unik dan menggoda.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:502, cat:'dessert', name:'Sop Duren', emoji:'🍈', photo:'', price:16000,
+    desc:'Sop durian segar dengan santan dan es serut.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:503, cat:'dessert', name:'Roti Duruk', emoji:'🍞', photo:'', price:12000,
+    desc:'Roti spesial dengan berbagai pilihan isian.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[
+      { name:'Mix', price:12000 },
+      { name:'Cokelat', price:12000 },
+      { name:'Keju', price:12000 }
+    ] },
+  { id:504, cat:'dessert', name:'Roti Giung', emoji:'🥐', photo:'', price:12000,
+    desc:'Roti giung lembut dengan cita rasa manis khas.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:505, cat:'dessert', name:'Bakpao Gejrot', emoji:'🥟', photo:'', price:1000,
+    desc:'Bakpao mini dengan bumbu gejrot pedas segar.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:506, cat:'dessert', name:'Roti Maryam', emoji:'🫓', photo:'', price:8000,
+    desc:'Roti maryam crispy dengan berbagai pilihan topping.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[
+      { name:'Original', price:8000 },
+      { name:'Melted Chocolate', price:13000 },
+      { name:'Super Cheese', price:13000 }
+    ] },
+
+  // ══ TOKPOKKI (Oppa Tokpokki) ══
+  { id:601, cat:'tokpokki', name:'Tokpokki Original', emoji:'🍢', photo:'', price:10000,
+    desc:'Tteokbokki original pedas manis khas Korea.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[ { name:'Reguler', price:10000 }, { name:'Large', price:15000 } ] },
+  { id:602, cat:'tokpokki', name:'Tokpokki Sosis', emoji:'🌭', photo:'', price:15000,
+    desc:'Tokpokki dengan tambahan sosis, makin kenyang.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[ { name:'Reguler', price:15000 }, { name:'Large', price:20000 } ] },
+  { id:603, cat:'tokpokki', name:'Tokpokki Seafood', emoji:'🦐', photo:'', price:15000,
+    desc:'Tokpokki dengan seafood segar, kuah gurih pedas.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[ { name:'Reguler', price:15000 }, { name:'Large', price:20000 } ] },
+  { id:604, cat:'tokpokki', name:'Tokpokki Keju', emoji:'🧀', photo:'', price:15000,
+    desc:'Tokpokki dengan lelehan keju yang creamy dan pedas.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[ { name:'Reguler', price:15000 }, { name:'Large', price:20000 } ] },
+  { id:605, cat:'tokpokki', name:'Odeng', emoji:'🍢', photo:'', price:15000,
+    desc:'Fish cake khas Korea dalam kuah gurih hangat.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[ { name:'Reguler', price:15000 }, { name:'Large', price:20000 } ] },
+  { id:606, cat:'tokpokki', name:'Rappokki Original', emoji:'🍚', photo:'', price:10000,
+    desc:'Ramen + Tokpokki original, kenyang double!', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[ { name:'Reguler', price:10000 }, { name:'Large', price:15000 } ] },
+  { id:607, cat:'tokpokki', name:'Rappokki Sosis', emoji:'🌭', photo:'', price:15000,
+    desc:'Ramen + Tokpokki dengan sosis.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[ { name:'Reguler', price:15000 }, { name:'Large', price:20000 } ] },
+  { id:608, cat:'tokpokki', name:'Rappokki Seafood', emoji:'🦐', photo:'', price:15000,
+    desc:'Ramen + Tokpokki dengan seafood.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[ { name:'Reguler', price:15000 }, { name:'Large', price:20000 } ] },
+  { id:609, cat:'tokpokki', name:'Rappokki Keju', emoji:'🧀', photo:'', price:15000,
+    desc:'Ramen + Tokpokki dengan keju meleleh.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[ { name:'Reguler', price:15000 }, { name:'Large', price:20000 } ] },
+  { id:610, cat:'tokpokki', name:'Omukki', emoji:'🐟', photo:'', price:15000,
+    desc:'Omukki fish cake goreng gurih ala Korea.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+
+  // ══ BOBA (Xi NoNa) ══
+  { id:701, cat:'boba', name:'Xi NoNa Boba', emoji:'🧋', photo:'', price:12000,
+    desc:'Minuman boba kekinian dengan berbagai pilihan rasa.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[
+      { name:'Brownsugar', price:12000 },
+      { name:'Cokelat', price:12000 },
+      { name:'Ovaltine', price:12000 },
+      { name:'Vanilla', price:12000 },
+      { name:'Vanilla Blue', price:12000 },
+      { name:'Red Velvet', price:12000 },
+      { name:'Cappuccino', price:12000 },
+      { name:'Mochaccino', price:12000 },
+      { name:'Taro', price:12000 },
+      { name:'Mango', price:12000 },
+      { name:'Strawberry', price:12000 },
+      { name:'Green Tea', price:12000 }
+    ] },
+
+  // ══ KOPI (Lugar Kopi) ══
+  { id:801, cat:'kopi', name:'Kopi Aren', emoji:'☕', photo:'', price:15000,
+    desc:'Kopi dengan manisnya gula aren asli Nusantara.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:802, cat:'kopi', name:'Vanilla Latte', emoji:'☕', photo:'', price:15000,
+    desc:'Espresso dengan susu dan aroma vanilla yang lembut.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:803, cat:'kopi', name:'Caffe Latte', emoji:'☕', photo:'', price:15000,
+    desc:'Espresso dengan steamed milk yang creamy.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:true,nasi:false,keju:false}, variants:null },
+  { id:804, cat:'kopi', name:'Cappuccino', emoji:'☕', photo:'', price:15000,
+    desc:'Espresso dengan milk foam tebal yang sempurna.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:true,nasi:false,keju:false}, variants:null },
+  { id:805, cat:'kopi', name:'Butterscotch', emoji:'🍮', photo:'', price:15000,
+    desc:'Kopi dengan rasa butterscotch manis karamel.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:806, cat:'kopi', name:'Butterscotch Seasalt', emoji:'🍮', photo:'', price:18000,
+    desc:'Butterscotch dengan sentuhan garam laut yang unik.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:807, cat:'kopi', name:'Americano', emoji:'☕', photo:'', price:10000,
+    desc:'Espresso dengan air panas, bold dan bersih.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:808, cat:'kopi', name:'Americano Orange', emoji:'🍊', photo:'', price:15000,
+    desc:'Americano segar dengan perasan jeruk yang menyegarkan.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:809, cat:'kopi', name:'Mochaccino', emoji:'🍫', photo:'', price:15000,
+    desc:'Espresso dengan cokelat dan susu yang kaya rasa.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:810, cat:'kopi', name:'Kopi Susu', emoji:'🥛', photo:'', price:15000,
+    desc:'Kopi susu klasik yang selalu menemani hari-harimu.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:811, cat:'kopi', name:'Kopi Lemon', emoji:'🍋', photo:'', price:15000,
+    desc:'Kopi dengan sensasi asam lemon yang menyegarkan.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:812, cat:'kopi', name:'Caramel Macchiato', emoji:'🍮', photo:'', price:18000,
+    desc:'Vanilla latte dengan lelehan karamel yang harum.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:813, cat:'kopi', name:'Matcha Latte', emoji:'🍵', photo:'', price:22000,
+    desc:'Matcha premium dengan susu segar pilihan.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:814, cat:'kopi', name:'Klepon', emoji:'🟢', photo:'', price:15000,
+    desc:'Kopi dengan cita rasa klepon yang unik dan khas.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:815, cat:'kopi', name:'Almond', emoji:'🌰', photo:'', price:15000,
+    desc:'Kopi dengan aroma almond yang harum dan creamy.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:816, cat:'kopi', name:'Pistachio', emoji:'🌿', photo:'', price:15000,
+    desc:'Kopi dengan cita rasa pistachio yang kaya.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:817, cat:'kopi', name:'Hazelnut', emoji:'🌰', photo:'', price:15000,
+    desc:'Kopi dengan aroma hazelnut yang menggoda.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:818, cat:'kopi', name:'V60', emoji:'☕', photo:'', price:15000,
+    desc:'Pour over V60 dengan biji kopi pilihan, tersedia regular dan signature.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[ { name:'Regular', price:15000 }, { name:'Signature', price:22000 } ] },
+  { id:819, cat:'kopi', name:'Japanese Ice', emoji:'🧊', photo:'', price:15000,
+    desc:'Kopi es ala Jepang yang smooth dan menyegarkan.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[ { name:'Regular', price:15000 }, { name:'Signature', price:22000 } ] },
+  { id:820, cat:'kopi', name:'Vietnam', emoji:'🇻🇳', photo:'', price:15000,
+    desc:'Kopi Vietnam drip dengan susu kental manis yang kental.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+
+  // ══ MILK ICE ══
+  { id:901, cat:'milkice', name:'Butterscotch Milk', emoji:'🥛', photo:'', price:13000,
+    desc:'Susu segar dengan rasa butterscotch manis.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:902, cat:'milkice', name:'Vanilla Milk', emoji:'🥛', photo:'', price:13000,
+    desc:'Susu segar dengan aroma vanilla yang lembut.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:903, cat:'milkice', name:'Caramel Milk', emoji:'🥛', photo:'', price:13000,
+    desc:'Susu segar dengan caramel manis yang menggoda.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:904, cat:'milkice', name:'Almond Milk', emoji:'🌰', photo:'', price:13000,
+    desc:'Susu segar dengan cita rasa almond yang kaya.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:905, cat:'milkice', name:'Hazelnut Milk', emoji:'🌰', photo:'', price:13000,
+    desc:'Susu segar dengan aroma hazelnut yang harum.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:906, cat:'milkice', name:'Pistachio Milk', emoji:'🌿', photo:'', price:13000,
+    desc:'Susu segar dengan rasa pistachio yang unik.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+
+  // ══ MINUMAN ══
+  { id:1001, cat:'minuman', name:'Es Teh Poci', emoji:'🍵', photo:'', price:5000,
+    desc:'Es teh poci segar dengan berbagai pilihan rasa buah.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:true,temp:false,nasi:false,keju:false},
+    variants:null,
+    tehOptions:[
+      { name:'Original', price:5000 }, { name:'Apel', price:10000 },
+      { name:'Blackcurrant', price:10000 }, { name:'Orange', price:10000 },
+      { name:'Lemon Honey', price:10000 }, { name:'Mango', price:10000 },
+      { name:'Guava', price:10000 }, { name:'Leci', price:10000 },
+      { name:'Cokelat', price:10000 }, { name:'Thaitea', price:12000 },
+      { name:'Milo', price:10000 }, { name:'Cappuccino', price:10000 },
+      { name:'Milk Tea', price:10000 }, { name:'Choco Milktea', price:12000 }
+    ] },
+  { id:1002, cat:'minuman', name:'Es Soda', emoji:'🥤', photo:'', price:8000,
+    desc:'Es soda segar dengan berbagai pilihan rasa.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[
+      { name:'Leci', price:8000 }, { name:'Jeruk', price:8000 },
+      { name:'Lemon', price:8000 }, { name:'Melon', price:8000 },
+      { name:'Vanilla', price:8000 }, { name:'Markisa', price:8000 },
+      { name:'Mangga', price:8000 }, { name:'Strawberry', price:8000 },
+      { name:'Coco Pandan', price:8000 }, { name:'Cola Float', price:12000 },
+      { name:'Fanta Float', price:12000 }
+    ] },
+  { id:1003, cat:'minuman', name:'Minuman Rempah', emoji:'🌿', photo:'', price:8000,
+    desc:'Minuman rempah tradisional yang menghangatkan badan.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false},
+    variants:[
+      { name:'Bandrek', price:8000 }, { name:'Bandrek Cokelat', price:8000 },
+      { name:'Bajigur', price:8000 }, { name:'Beras Kencur', price:8000 },
+      { name:'Sari Sereh Jahe', price:8000 }, { name:'Wedang Uwuh', price:10000 }
+    ] },
+  { id:1004, cat:'minuman', name:'Air Mineral', emoji:'💧', photo:'', price:5000,
+    desc:'Air mineral segar.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:1005, cat:'minuman', name:'Teh Tawar', emoji:'🍵', photo:'', price:3000,
+    desc:'Teh tawar hangat.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:1006, cat:'minuman', name:'Teh Manis Panas', emoji:'🍵', photo:'', price:5000,
+    desc:'Teh manis hangat.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:1007, cat:'minuman', name:'Dancow Vanilla', emoji:'🥛', photo:'', price:10000,
+    desc:'Susu Dancow vanilla, tersedia panas atau dingin.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:true,nasi:false,keju:false}, variants:null },
+  { id:1008, cat:'minuman', name:'Dancow Cokelat', emoji:'🍫', photo:'', price:10000,
+    desc:'Susu Dancow cokelat, tersedia panas atau dingin.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:true,nasi:false,keju:false}, variants:null },
+  { id:1009, cat:'minuman', name:'Milo', emoji:'🥤', photo:'', price:10000,
+    desc:'Milo cokelat malt favorit, tersedia panas atau dingin.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:true,nasi:false,keju:false}, variants:null },
+
+  // ══ ES KRIM ══
+  { id:1101, cat:'eskrim', name:'Ice Cream Burger', emoji:'🍦', photo:'FOTO_IC_BURGER', price:10000,
+    desc:'Es krim dalam bentuk burger yang unik dan lezat.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:1102, cat:'eskrim', name:'Ice Cream Canai', emoji:'🍦', photo:'FOTO_IC_CANAI', price:15000,
+    desc:'Es krim dengan roti canai yang renyah.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:1103, cat:'eskrim', name:'Ice Cream Toast', emoji:'🍦', photo:'FOTO_IC_TOAST', price:13000,
+    desc:'Es krim dengan roti bakar yang gurih dan manis.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:1104, cat:'eskrim', name:'Ice Cream Roll', emoji:'🍦', photo:'FOTO_IC_ROLL', price:13000,
+    desc:'Es krim digulung dengan topping spesial.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:1105, cat:'eskrim', name:'Ice Cream 3 Color', emoji:'🍦', photo:'FOTO_IC_3COLOR', price:13000,
+    desc:'Es krim tiga rasa dalam satu sajian.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:1106, cat:'eskrim', name:'Ice Cream Boba', emoji:'🍦', photo:'FOTO_IC_BOBA', price:13000,
+    desc:'Es krim dengan topping boba kenyal yang nikmat.', popular:false,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null },
+  { id:1107, cat:'eskrim', name:'Ice Cream Supreme', emoji:'🍦', photo:'FOTO_IC_SUPREME', price:15000,
+    desc:'Es krim premium dengan topping lengkap.', popular:true,
+    options:{sauce:false,spicy:false,fire:false,corndogSpicy:false,teh:false,temp:false,nasi:false,keju:false}, variants:null }
+];
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', function() { renderMenu('all'); });
+
+function getPhoto(item) {
+  if (!item.photo || item.photo === '' || item.photo.startsWith('FOTO_')) return null;
+  return item.photo;
+}
+
+// ── RENDER ──
+function renderMenu(filter) {
+  var container = document.getElementById('menuContainer');
+  var categories = [
+    { key:'chicken',  label:'🍗 Chicken' },
+    { key:'makanan',  label:'🍜 Makanan Kedai' },
+    { key:'fastfood', label:'🍔 Fast Food' },
+    { key:'corndog',  label:'🌭 Corndog' },
+    { key:'dessert',  label:'🍰 Dessert' },
+    { key:'tokpokki', label:'🍢 Oppa Tokpokki' },
+    { key:'boba',     label:'🧋 Xi NoNa Boba' },
+    { key:'kopi',     label:'☕ Lugar Kopi' },
+    { key:'milkice',  label:'🥛 Milk Ice' },
+    { key:'minuman',  label:'🍵 Minuman' },
+    { key:'eskrim',   label:'🍦 Es Krim' }
+  ];
+  var html = '';
+  categories.forEach(function(cat) {
+    var items = menuData.filter(function(m) {
+      return (filter === 'all' || filter === cat.key) && m.cat === cat.key;
+    });
+    if (!items.length) return;
+    html += '<div class="section-title">' + cat.label + '</div><div class="menu-grid">';
+    items.forEach(function(item) {
+      var photo = getPhoto(item);
+      var shortDesc = item.desc.length > 55 ? item.desc.substring(0,55) + '...' : item.desc;
+      var priceDisplay = 'Rp ' + item.price.toLocaleString('id-ID');
+      var imgContent = photo
+        ? '<img class="menu-photo" src="' + photo + '" alt="' + item.name + '" />'
+        : '<span style="position:relative;z-index:1">' + item.emoji + '</span>';
+      html += '<div class="menu-card" onclick="openItem(' + item.id + ')">' +
+        '<div class="menu-card-img">' +
+          (item.popular ? '<span class="badge-popular">⭐ POPULER</span>' : '') +
+          imgContent +
+        '</div>' +
+        '<div class="menu-card-body">' +
+          '<div class="menu-card-name">' + item.name + '</div>' +
+          '<div class="menu-card-desc">' + shortDesc + '</div>' +
+          '<div class="menu-card-footer">' +
+            '<span class="menu-price">' + priceDisplay + '</span>' +
+            '<button class="add-btn" onclick="event.stopPropagation();openItem(' + item.id + ')">+</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function filterCat(btn, cat) {
+  document.querySelectorAll('.cat-tab').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderMenu(cat);
+}
+
+// ── TABLE ──
+function selectTable(btn, name) {
+  document.querySelectorAll('.table-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  selectedTable = name;
+  var ind = document.getElementById('tableIndicator');
+  ind.textContent = name;
+  ind.style.display = 'inline-block';
+}
+
+// ── OPEN ITEM MODAL ──
+function openItem(id) {
+  currentItem = menuData.find(function(m) { return m.id === id; });
+  if (!currentItem) return;
+  currentQty = 1; currentVariant = null; currentSauce = null;
+  currentSpicy = null; currentFireLevel = null; currentCorndogSpicy = null;
+  currentTeh = null; currentTemp = null; currentAddons = {};
+
+  document.getElementById('modalTitle').textContent = currentItem.name;
+  document.getElementById('modalDesc').textContent = currentItem.desc;
+  document.getElementById('modalNote').value = '';
+  document.getElementById('qtyNum').textContent = 1;
+
+  // foto/emoji
+  var photo = getPhoto(currentItem);
+  var emojiEl = document.getElementById('modalEmoji');
+  if (photo) {
+    emojiEl.innerHTML = '<img src="' + photo + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px;display:block" alt="' + currentItem.name + '" />';
+    emojiEl.style.cssText = 'padding:0;font-size:0';
+  } else {
+    emojiEl.innerHTML = currentItem.emoji;
+    emojiEl.style.cssText = 'padding:12px;font-size:4rem;text-align:center;background:linear-gradient(135deg,#F0E0C0,#D4B080);border-radius:14px;margin-bottom:12px';
+  }
+
+  // ── Variants ──
+  buildVariants();
+  // ── Saus ──
+  buildOptGroup('sauceGroup', 'sauceRow', currentItem.options.sauce, SAUCE_OPTIONS, 'sauce-style', function(v){ currentSauce = v.name; }, function(){ currentSauce = SAUCE_OPTIONS[0].name; });
+  // ── Spicy 1-10 ──
+  buildOptGroup('spicyGroup', 'spicyRow', currentItem.options.spicy, SPICY_LEVELS, 'spicy-style', function(v){ currentSpicy = v.name; }, function(){ currentSpicy = SPICY_LEVELS[0].name; });
+  // ── Fire 0-3 ──
+  buildOptGroup('fireGroup', 'fireRow', currentItem.options.fire, FIRE_LEVELS, 'fire-style', function(v){ currentFireLevel = v.name; }, function(){ currentFireLevel = FIRE_LEVELS[0].name; });
+  // ── Corndog Spicy ──
+  buildCorndogSpicy();
+  // ── Teh Rasa ──
+  buildTeh();
+  // ── Suhu ──
+  buildOptGroup('tempGroup', 'tempRow', currentItem.options.temp, TEMP_OPTIONS, 'temp-style', function(v){ currentTemp = v.name; }, function(){ currentTemp = TEMP_OPTIONS[0].name; });
+  // ── Add-ons ──
+  buildAddons();
+
+  updateBtnTotal(); updateModalPrice();
+  document.getElementById('itemModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function buildVariants() {
+  var grp = document.getElementById('variantGroup');
+  var row = document.getElementById('variantRow');
+  if (!currentItem.variants || !currentItem.variants.length) { grp.style.display = 'none'; return; }
+  row.innerHTML = '';
+  currentItem.variants.forEach(function(v, idx) {
+    var btn = document.createElement('button');
+    btn.className = 'opt-btn sauce-style' + (idx === 0 ? ' active' : '');
+    var vPhoto = v.photo && !v.photo.startsWith('FOTO_') ? v.photo : null;
+    btn.innerHTML = (vPhoto ? '<span class="emoji"><img src="'+vPhoto+'" style="width:1.2rem;height:1.2rem;object-fit:cover;border-radius:3px"></span>' : '') +
+      v.name + '<br><small style="color:var(--amber);font-weight:700">Rp ' + v.price.toLocaleString('id-ID') + '</small>';
+    btn.onclick = (function(variant) {
+      return function() {
+        row.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        currentVariant = variant;
+        // corndog spicy per variant
+        if (typeof variant.corndogSpicy !== 'undefined') {
+          var csg = document.getElementById('corndogSpicyGroup');
+          if (variant.corndogSpicy) {
+            csg.style.display = 'block';
+            currentCorndogSpicy = CORNDOG_SPICY_OPTIONS[0].name;
+            document.getElementById('corndogSpicyRow').querySelectorAll('.opt-btn').forEach(function(b,i){ b.classList.toggle('active', i===0); });
+          } else { csg.style.display = 'none'; currentCorndogSpicy = null; }
+        }
+        updateBtnTotal(); updateModalPrice();
+      };
+    })(v);
+    row.appendChild(btn);
+  });
+  currentVariant = currentItem.variants[0];
+  grp.style.display = 'block';
+}
+
+function buildOptGroup(grpId, rowId, show, options, btnClass, setter, defaultSetter) {
+  var grp = document.getElementById(grpId);
+  var row = document.getElementById(rowId);
+  if (!show) { grp.style.display = 'none'; return; }
+  row.innerHTML = '';
+  options.forEach(function(o, idx) {
+    var btn = document.createElement('button');
+    btn.className = 'opt-btn ' + btnClass + (idx === 0 ? ' active' : '');
+    btn.innerHTML = (o.emoji ? '<span class="emoji">' + o.emoji + '</span>' : '') + o.name;
+    btn.onclick = (function(opt) {
+      return function() {
+        row.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        setter(opt);
+      };
+    })(o);
+    row.appendChild(btn);
+  });
+  defaultSetter();
+  grp.style.display = 'block';
+}
+
+function buildCorndogSpicy() {
+  var grp = document.getElementById('corndogSpicyGroup');
+  var row = document.getElementById('corndogSpicyRow');
+  var show = currentItem.options.corndogSpicy ||
+    (currentItem.variants && currentItem.variants.length > 0 && currentItem.variants[0].corndogSpicy);
+  row.innerHTML = '';
+  CORNDOG_SPICY_OPTIONS.forEach(function(cs, idx) {
+    var btn = document.createElement('button');
+    btn.className = 'opt-btn spicy-style' + (idx === 0 ? ' active' : '');
+    btn.innerHTML = '<span class="emoji">' + cs.emoji + '</span>' + cs.name;
+    btn.onclick = (function(opt){ return function() {
+      row.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentCorndogSpicy = opt.name;
+    }; })(cs);
+    row.appendChild(btn);
+  });
+  if (show) { currentCorndogSpicy = CORNDOG_SPICY_OPTIONS[0].name; grp.style.display = 'block'; }
+  else { currentCorndogSpicy = null; grp.style.display = 'none'; }
+}
+
+function buildTeh() {
+  var grp = document.getElementById('tehGroup');
+  var row = document.getElementById('tehRow');
+  if (!currentItem.options.teh || !currentItem.tehOptions) { grp.style.display = 'none'; return; }
+  row.innerHTML = '';
+  currentItem.tehOptions.forEach(function(t, idx) {
+    var btn = document.createElement('button');
+    btn.className = 'opt-btn drink-style' + (idx === 0 ? ' active' : '');
+    btn.innerHTML = t.name + '<br><small style="color:var(--green);font-weight:700">Rp ' + t.price.toLocaleString('id-ID') + '</small>';
+    btn.onclick = (function(opt){ return function() {
+      row.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentTeh = opt; updateBtnTotal(); updateModalPrice();
+    }; })(t);
+    row.appendChild(btn);
+  });
+  currentTeh = currentItem.tehOptions[0];
+  grp.style.display = 'block';
+}
+
+function buildAddons() {
+  var grp = document.getElementById('addonGroup');
+  var row = document.getElementById('addonRow');
+  var hasAddon = currentItem.options.nasi || currentItem.options.keju;
+  if (!hasAddon) { grp.style.display = 'none'; return; }
+  row.innerHTML = '';
+  if (currentItem.options.nasi) row.appendChild(makeAddonEl('nasi', '🍚 Tambah Nasi', HARGA_NASI));
+  if (currentItem.options.keju) row.appendChild(makeAddonEl('keju', '🧀 Tambah Keju', HARGA_KEJU));
+  grp.style.display = 'block';
+}
+
+function makeAddonEl(key, label, price) {
+  var el = document.createElement('div');
+  el.className = 'addon-check';
+  el.innerHTML = '<span class="addon-check-label">' + label + '</span>' +
+    '<span class="addon-check-price">+ Rp ' + price.toLocaleString('id-ID') + '</span>';
+  el.onclick = function() {
+    currentAddons[key] = !currentAddons[key];
+    el.classList.toggle('checked', currentAddons[key]);
+    updateBtnTotal(); updateModalPrice();
+  };
+  return el;
+}
+
+function getEffectivePrice() {
+  if (!currentItem) return 0;
+  var base = currentItem.price;
+  if (currentItem.options.teh && currentTeh) base = currentTeh.price;
+  if (currentItem.variants && currentVariant) base = currentVariant.price;
+  if (currentAddons.nasi) base += HARGA_NASI;
+  if (currentAddons.keju) base += HARGA_KEJU;
+  return base;
+}
+
+function updateModalPrice() {
+  document.getElementById('modalPrice').textContent = 'Rp ' + getEffectivePrice().toLocaleString('id-ID');
+}
+
+function updateBtnTotal() {
+  if (!currentItem) return;
+  document.getElementById('btnTotal').textContent = 'Rp ' + (getEffectivePrice() * currentQty).toLocaleString('id-ID');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function changeQty(d) {
+  currentQty = Math.max(1, currentQty + d);
+  document.getElementById('qtyNum').textContent = currentQty;
+  updateBtnTotal();
+}
+
+// ── ADD TO CART ──
+function addToCart() {
+  var note = document.getElementById('modalNote').value.trim();
+  var price = getEffectivePrice();
+  var opts = [];
+  if (currentVariant) opts.push(currentVariant.name);
+  if (currentSauce) opts.push('Saus ' + currentSauce);
+  if (currentSpicy) opts.push(currentSpicy);
+  if (currentFireLevel) opts.push(currentFireLevel);
+  if (currentCorndogSpicy) opts.push(currentCorndogSpicy);
+  if (currentTeh) opts.push(currentTeh.name);
+  if (currentTemp) opts.push(currentTemp);
+  if (currentAddons.nasi) opts.push('+ Nasi');
+  if (currentAddons.keju) opts.push('+ Keju');
+  cart.push({ id: Date.now(), item: currentItem, qty: currentQty, opts: opts.join(' · '), note: note, subtotal: price * currentQty });
+  updateCartCount();
+  closeModal('itemModal');
+  var btn = document.querySelector('.cart-btn');
+  btn.style.background = 'var(--green)';
+  setTimeout(function() { btn.style.background = ''; }, 700);
+}
+
+function updateCartCount() {
+  var total = 0; cart.forEach(function(c) { total += c.qty; });
+  document.getElementById('cartCount').textContent = total;
+}
+
+// ── CART ──
+function openCart() {
+  var container = document.getElementById('cartItems');
+  if (!cart.length) {
+    container.innerHTML = '<div class="empty-cart"><span class="icon">🛒</span>Keranjang masih kosong.<br>Yuk pilih menu dulu!</div>';
+    document.getElementById('cartTotal').textContent = 'Rp 0';
+  } else {
+    var html = '', total = 0;
+    cart.forEach(function(c) {
+      total += c.subtotal;
+      html += '<div class="cart-item"><span class="cart-emoji">' + c.item.emoji + '</span>' +
+        '<div class="cart-info"><div class="cart-name">' + c.item.name + ' ×' + c.qty + '</div>' +
+        (c.opts ? '<div class="cart-opts">' + c.opts + '</div>' : '') +
+        (c.note ? '<div class="cart-note">📝 ' + c.note + '</div>' : '') +
+        '<div class="cart-price">Rp ' + c.subtotal.toLocaleString('id-ID') + '</div></div>' +
+        '<button class="cart-remove" onclick="removeItem(' + c.id + ')">🗑️</button></div>';
+    });
+    container.innerHTML = html;
+    document.getElementById('cartTotal').textContent = 'Rp ' + total.toLocaleString('id-ID');
+  }
+  document.getElementById('cartTableInfo').textContent = selectedTable ? '🪑 ' + selectedTable : '⚠️ Belum memilih meja';
+  document.getElementById('cartModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function removeItem(id) {
+  cart = cart.filter(function(c) { return c.id !== id; });
+  updateCartCount(); openCart();
+}
+
+// ── ORDER ──
+function placeOrder() {
+  if (!cart.length) { alert('Keranjang masih kosong!'); return; }
+  if (!selectedTable) { alert('Silakan pilih meja terlebih dahulu!'); return; }
+  orderCount++;
+  var num = '#' + String(orderCount).padStart(3, '0');
+  var waktu = new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+  var total = 0; cart.forEach(function(c) { total += c.subtotal; });
+  lastOrderTotal = total; lastOrderNum = num;
+
+  var msg = '🌭 *PESANAN BARU - Kedai Sosis Duruk*\n';
+  msg += '━━━━━━━━━━━━━━━━━━\n';
+  msg += '📋 No. Order : *' + num + '*\n';
+  msg += '🪑 Meja      : *' + selectedTable + '*\n';
+  msg += '🕐 Waktu     : *' + waktu + '*\n';
+  msg += '━━━━━━━━━━━━━━━━━━\n\n*DETAIL PESANAN:*\n';
+  cart.forEach(function(c, i) {
+    msg += '\n' + (i+1) + '. ' + c.item.emoji + ' *' + c.item.name + '* x' + c.qty + '\n';
+    if (c.opts) msg += '   📌 ' + c.opts + '\n';
+    if (c.note) msg += '   📝 _' + c.note + '_\n';
+    msg += '   💰 Rp ' + c.subtotal.toLocaleString('id-ID') + '\n';
+  });
+  msg += '\n━━━━━━━━━━━━━━━━━━\n💵 *TOTAL: Rp ' + total.toLocaleString('id-ID') + '*\n━━━━━━━━━━━━━━━━━━\n_Dikirim via Self-Order App_';
+
+  lastWaUrl = 'https://wa.me/' + kasirWA + '?text=' + encodeURIComponent(msg);
+  document.getElementById('orderNumber').textContent = num;
+  document.getElementById('successTableInfo').textContent = '📍 ' + selectedTable + '  ·  🕐 ' + waktu;
+  closeModal('cartModal');
+  document.getElementById('successModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  setTimeout(function() { window.open(lastWaUrl, '_blank'); }, 400);
+}
+
+function resendWA() { if (lastWaUrl) window.open(lastWaUrl, '_blank'); }
+
+function resetOrder() {
+  cart = []; selectedTable = null; lastWaUrl = null; lastOrderTotal = 0; lastOrderNum = '';
+  updateCartCount();
+  document.querySelectorAll('.table-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tableIndicator').style.display = 'none';
+  closeModal('successModal');
+}
+
+// ── QRIS ──
+function openQris() {
+  document.getElementById('qrisTotalAmount').textContent = 'Rp ' + lastOrderTotal.toLocaleString('id-ID');
+  document.getElementById('qrisOrderNum').textContent = lastOrderNum;
+  document.getElementById('qrisImg').src = QRIS_PHOTO_URL;
+  document.getElementById('qrisModal').classList.add('show');
+}
+function closeQris() { document.getElementById('qrisModal').classList.remove('show'); }
+function confirmPayment() {
+  closeQris(); closeModal('successModal');
+  var banner = document.createElement('div');
+  banner.innerHTML = '✅ Terima kasih! Pembayaran sedang diproses kasir.';
+  banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--green);color:white;padding:12px 22px;border-radius:50px;font-weight:700;font-size:0.85rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.2);text-align:center;max-width:90vw';
+  document.body.appendChild(banner);
+  setTimeout(function() { banner.remove(); }, 3500);
+  resetOrder();
+}
+</script>
+</body>
+</html>
